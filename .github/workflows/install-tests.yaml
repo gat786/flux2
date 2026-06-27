@@ -1,0 +1,34 @@
+name: Install plugins
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - test-plugin-install-2
+
+jobs:
+  test-action:
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-26.04, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: test-plugin-install-2
+      - uses: ./action
+        id: setup-flux
+        with:
+          plugins: |
+            mirror
+      - name: test-plugin
+        id: test-plugin
+        run: |
+          flux mirror --version
+      - name: print outputs
+        id: print-output
+        env:
+          OUTPUT: ${{ steps.setup-flux.outputs.plugin-dir }}
+        run: |
+          echo $OUTPUT
