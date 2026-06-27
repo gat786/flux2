@@ -172,9 +172,7 @@ runs:
       env:
         V1: ${{ steps.setup-flux-bin.outputs.installed-flux-version }}
       run: |
-        IFS="." read -ra version <<< $V1
-
-        if [[ ${version[0]} -ge 2 && ${version[1]} -ge 9 ]]; then
+        if [ "$(printf '%s\n%s' "$V1" "2.9.0" | sort -V | tail -n1)" = "$V1" ]; then
           echo plugin-support="yes" >> $GITHUB_OUTPUT
         else
           echo plugin-support="no" >> $GITHUB_OUTPUT
