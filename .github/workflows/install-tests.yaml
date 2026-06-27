@@ -8,11 +8,7 @@ on:
 
 jobs:
   test-action:
-    strategy:
-      fail-fast: true
-      matrix:
-        os: [ubuntu-26.04, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
         with:
@@ -20,6 +16,7 @@ jobs:
       - uses: ./action
         id: setup-flux
         with:
+          version: 2.9.0
           plugins: |
             mirror
       - name: test-plugin

@@ -162,10 +162,11 @@ runs:
 
     - name: Build Flux with a higher version
       shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
       run: |
-        VERSION=2.9.0 make build
-        FLUX_PATH="$(pwd)/bin"
-        echo "$FLUX_PATH" >> "$GITHUB_PATH"
+        VERSION=$VERSION make build
+        sudo mv bin/flux /usr/local/bin
 
     - name: "Print installed flux version"
       shell: bash
