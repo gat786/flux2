@@ -16,7 +16,7 @@ jobs:
       - uses: ./action
         id: setup-flux
         with:
-          version: 2.9.0
+          version: 2.8.9
           plugins: |
             mirror
       - name: test-plugin
