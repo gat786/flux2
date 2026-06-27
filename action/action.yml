@@ -73,92 +73,99 @@ runs:
         fi
         echo arch="$ARCH" >> $GITHUB_OUTPUT
 
-        FLUX_EXEC_FILE="flux"
-        if [[ "$OS" == "windows" ]]; then
-            FLUX_EXEC_FILE="${FLUX_EXEC_FILE}.exe"
-        fi
+        # FLUX_EXEC_FILE="flux"
+        # if [[ "$OS" == "windows" ]]; then
+        #     FLUX_EXEC_FILE="${FLUX_EXEC_FILE}.exe"
+        # fi
 
-        if [[ -z "$FLUX_TOOL_DIR" ]]; then
-          FLUX_TOOL_DIR="${RUNNER_TOOL_CACHE}/flux2/${VERSION}/${OS}/${ARCH}"
-        fi
-        if [[ ! -x "$FLUX_TOOL_DIR/FLUX_EXEC_FILE" ]]; then
-          DL_DIR="$(mktemp -dt flux2-XXXXXX)"
-          trap 'rm -rf $DL_DIR' EXIT
+        # if [[ -z "$FLUX_TOOL_DIR" ]]; then
+        #   FLUX_TOOL_DIR="${RUNNER_TOOL_CACHE}/flux2/${VERSION}/${OS}/${ARCH}"
+        # fi
+        # if [[ ! -x "$FLUX_TOOL_DIR/FLUX_EXEC_FILE" ]]; then
+        #   DL_DIR="$(mktemp -dt flux2-XXXXXX)"
+        #   trap 'rm -rf $DL_DIR' EXIT
 
-          echo "Downloading flux ${VERSION} for ${OS}/${ARCH}"
-          FLUX_TARGET_FILE="flux_${VERSION}_${OS}_${ARCH}.tar.gz"
-          if [[ "$OS" == "windows" ]]; then
-            FLUX_TARGET_FILE="flux_${VERSION}_${OS}_${ARCH}.zip"
-          fi
+        #   echo "Downloading flux ${VERSION} for ${OS}/${ARCH}"
+        #   FLUX_TARGET_FILE="flux_${VERSION}_${OS}_${ARCH}.tar.gz"
+        #   if [[ "$OS" == "windows" ]]; then
+        #     FLUX_TARGET_FILE="flux_${VERSION}_${OS}_${ARCH}.zip"
+        #   fi
 
-          FLUX_CHECKSUMS_FILE="flux_${VERSION}_checksums.txt"
+        #   FLUX_CHECKSUMS_FILE="flux_${VERSION}_checksums.txt"
 
-          FLUX_DOWNLOAD_URL="https://github.com/fluxcd/flux2/releases/download/v${VERSION}/"
+        #   FLUX_DOWNLOAD_URL="https://github.com/fluxcd/flux2/releases/download/v${VERSION}/"
 
-          MAX_RETRIES=5
-          RETRY_DELAY=5
+        #   MAX_RETRIES=5
+        #   RETRY_DELAY=5
 
-          for i in $(seq 1 $MAX_RETRIES); do
-            echo "Downloading flux binary (attempt $i/$MAX_RETRIES)"
-            if curl -fsSL -o "$DL_DIR/$FLUX_TARGET_FILE" "$FLUX_DOWNLOAD_URL/$FLUX_TARGET_FILE"; then
-              break
-            fi
-            if [ $i -lt $MAX_RETRIES ]; then
-              echo "Download failed, retrying in ${RETRY_DELAY} seconds..."
-              sleep $RETRY_DELAY
-            else
-              echo "Failed to download flux binary after $MAX_RETRIES attempts"
-              exit 1
-            fi
-          done
+        #   for i in $(seq 1 $MAX_RETRIES); do
+        #     echo "Downloading flux binary (attempt $i/$MAX_RETRIES)"
+        #     if curl -fsSL -o "$DL_DIR/$FLUX_TARGET_FILE" "$FLUX_DOWNLOAD_URL/$FLUX_TARGET_FILE"; then
+        #       break
+        #     fi
+        #     if [ $i -lt $MAX_RETRIES ]; then
+        #       echo "Download failed, retrying in ${RETRY_DELAY} seconds..."
+        #       sleep $RETRY_DELAY
+        #     else
+        #       echo "Failed to download flux binary after $MAX_RETRIES attempts"
+        #       exit 1
+        #     fi
+        #   done
 
-          for i in $(seq 1 $MAX_RETRIES); do
-            echo "Downloading checksums file (attempt $i/$MAX_RETRIES)"
-            if curl -fsSL -o "$DL_DIR/$FLUX_CHECKSUMS_FILE" "$FLUX_DOWNLOAD_URL/$FLUX_CHECKSUMS_FILE"; then
-              break
-            fi
-            if [ $i -lt $MAX_RETRIES ]; then
-              echo "Download failed, retrying in ${RETRY_DELAY} seconds..."
-              sleep $RETRY_DELAY
-            else
-              echo "Failed to download checksums file after $MAX_RETRIES attempts"
-              exit 1
-            fi
-          done
+        #   for i in $(seq 1 $MAX_RETRIES); do
+        #     echo "Downloading checksums file (attempt $i/$MAX_RETRIES)"
+        #     if curl -fsSL -o "$DL_DIR/$FLUX_CHECKSUMS_FILE" "$FLUX_DOWNLOAD_URL/$FLUX_CHECKSUMS_FILE"; then
+        #       break
+        #     fi
+        #     if [ $i -lt $MAX_RETRIES ]; then
+        #       echo "Download failed, retrying in ${RETRY_DELAY} seconds..."
+        #       sleep $RETRY_DELAY
+        #     else
+        #       echo "Failed to download checksums file after $MAX_RETRIES attempts"
+        #       exit 1
+        #     fi
+        #   done
 
-          echo "Verifying checksum"
-          sum=""
-          if command -v openssl > /dev/null; then
-            sum=$(openssl sha256 "$DL_DIR/$FLUX_TARGET_FILE" | awk '{print $2}')
-          elif command -v sha256sum > /dev/null; then
-            sum=$(sha256sum "$DL_DIR/$FLUX_TARGET_FILE" | awk '{print $1}')
-          fi
+        #   echo "Verifying checksum"
+        #   sum=""
+        #   if command -v openssl > /dev/null; then
+        #     sum=$(openssl sha256 "$DL_DIR/$FLUX_TARGET_FILE" | awk '{print $2}')
+        #   elif command -v sha256sum > /dev/null; then
+        #     sum=$(sha256sum "$DL_DIR/$FLUX_TARGET_FILE" | awk '{print $1}')
+        #   fi
 
-          if [[ -z "$sum" ]]; then
-            echo "Neither openssl nor sha256sum found. Cannot calculate checksum."
-            exit 1
-          fi
+        #   if [[ -z "$sum" ]]; then
+        #     echo "Neither openssl nor sha256sum found. Cannot calculate checksum."
+        #     exit 1
+        #   fi
 
-          expected_sum=$(grep " $FLUX_TARGET_FILE\$" "$DL_DIR/$FLUX_CHECKSUMS_FILE" | awk '{print $1}')
-          if [ "$sum" != "$expected_sum" ]; then
-            echo "SHA sum of ${FLUX_TARGET_FILE} does not match. Aborting."
-            exit 1
-          fi
+        #   expected_sum=$(grep " $FLUX_TARGET_FILE\$" "$DL_DIR/$FLUX_CHECKSUMS_FILE" | awk '{print $1}')
+        #   if [ "$sum" != "$expected_sum" ]; then
+        #     echo "SHA sum of ${FLUX_TARGET_FILE} does not match. Aborting."
+        #     exit 1
+        #   fi
 
-          echo "Installing flux to ${FLUX_TOOL_DIR}"
-          mkdir -p "$FLUX_TOOL_DIR"
+        #   echo "Installing flux to ${FLUX_TOOL_DIR}"
+        #   mkdir -p "$FLUX_TOOL_DIR"
 
-          if [[ "$OS" == "windows" ]]; then
-            unzip "$DL_DIR/$FLUX_TARGET_FILE" "$FLUX_EXEC_FILE" -d "$FLUX_TOOL_DIR"
-          else
-            tar xzf "$DL_DIR/$FLUX_TARGET_FILE" -C "$FLUX_TOOL_DIR" $FLUX_EXEC_FILE
-          fi
+        #   if [[ "$OS" == "windows" ]]; then
+        #     unzip "$DL_DIR/$FLUX_TARGET_FILE" "$FLUX_EXEC_FILE" -d "$FLUX_TOOL_DIR"
+        #   else
+        #     tar xzf "$DL_DIR/$FLUX_TARGET_FILE" -C "$FLUX_TOOL_DIR" $FLUX_EXEC_FILE
+        #   fi
 
-          chmod +x "$FLUX_TOOL_DIR/$FLUX_EXEC_FILE"
-        fi
+        #   chmod +x "$FLUX_TOOL_DIR/$FLUX_EXEC_FILE"
+        # fi
 
-        echo "Adding flux to path"
-        echo "$FLUX_TOOL_DIR" >> "$GITHUB_PATH"
+        # echo "Adding flux to path"
+        # echo "$FLUX_TOOL_DIR" >> "$GITHUB_PATH"
+
+    - name: Build Flux with a higher version
+      shell: bash
+      run: |
+        VERSION=2.9.0 make build
+        FLUX_PATH="$(pwd)/bin"
+        echo "$FLUX_PATH" >> "$GITHUB_PATH"
 
     - name: "Print installed flux version"
       shell: bash
