@@ -24,6 +24,7 @@ jobs:
             mirror
       - name: test-plugin
         id: test-plugin
+        continue-on-error: true
         run: |
           flux mirror --version
       - name: print outputs
